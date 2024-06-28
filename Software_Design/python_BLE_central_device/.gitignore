@@ -1,0 +1,6 @@
+__pycache__/
+data/
+study_data/
+commands/
+commands.*
+motor.*
