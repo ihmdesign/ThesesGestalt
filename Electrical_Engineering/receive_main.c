@@ -48,39 +48,15 @@
 #include <stdlib.h>
 #define _XTAL_FREQ  32000000     // Set clock frequency 
 
-uint8_t mode = 0; //0 for squre-pwm, 1 for sine-pwm
 uint8_t buffer = 0;//uart recv buffer
 
-uint8_t duty_index = 2; //0-3 corresponding 3/16, 7/16, 11/16, 15/16 of duty cycle for square wave
-                                          //12.5%, 25%, 50%, 100% for sine wave 
-uint8_t freq_index = 3; //0-3 modes of frequency adjustments
+uint8_t duty_index = 7; // 0-15 maps to PWM duty cycle 0-100%;
+uint8_t freq_index = 3; // 0-7 maps to frequency {123, 145, 170, 200, 235, 275, 322, 384} Hz;
 
-
-// Sine table contains pre-calculated values of sin(x)
-//resolution: 32
-uint8_t sine_table[] = {
-128,134,140,146,152,158,165,170,
-176,182,188,193,198,203,208,213,
-218,222,226,230,234,237,240,243,
-245,248,250,251,253,254,254,255,
-255,255,254,254,253,251,250,248,
-245,243,240,237,234,230,226,222,
-218,213,208,203,198,193,188,182,
-176,170,165,158,152,146,140,134,
-128,121,115,109,103,97,90,85,
-79,73,67,62,57,52,47,42,
-37,33,29,25,21,18,15,12,
-10,7,5,4,2,1,1,0,
-0,0,1,1,2,4,5,7,
-10,12,15,18,21,25,29,33,
-37,42,47,52,57,62,67,73,
-79,85,90,97,103,109,115,121};
-
-uint8_t PR_val[] = {127, 107, 91, 80, 66, 56, 48, 40}; // for {123, 145, 170, 200, 235, 275, 322, 384} Hz.
+uint8_t PR_val[] = {127, 107, 91, 80, 66, 56, 48, 40}; // PR2 values for frequencies;
 
 // Index into sine table
 uint8_t index = 0;
-uint16_t loadval;
 uint8_t state = 0; //is the board being addressed by the controller
 
 void init_ccp_cwg(void) {
@@ -170,7 +146,6 @@ void UART_Write(uint8_t data) {
 
 // Timer2 Interrupt Service Routine
 void __interrupt() ISR(void) {
-
         if (RCIF) {
             RCIF = 0; // Clear The Flag
             uint8_t parity = RX9D; //read the 9th parity
@@ -181,6 +156,7 @@ void __interrupt() ISR(void) {
                 uint8_t addr = (buffer >> 1); //get addr
                 uint8_t start = (buffer & 0b1); //get start/stop
                 if(addr != 0){ //not the current address
+                    state = 0;// if state = 1 but the byte after is not data byte, then the unit should reset, to let commands go through.
                     --addr; //decrease addr
                     UART_Write(make_addr_byte(start, addr)); //send
                     return;
@@ -217,31 +193,14 @@ void __interrupt() ISR(void) {
                 }
             }
         }
-
-        else if(CCP1IF && mode){ //spwm
-            
-            //PR2 = PR_val[freq_index]; //load freq
-            // Update Duty Cycle
-            CCP1IF = 0; //clear flag
-            TMR2IF = 0;
-            index = (index + 1) % 128;
-            loadval = sine_table[index] >> (8 - duty_index);
-            loadval = ( loadval * (PR_val[freq_index])) >> 8;
-            CCPR1H = loadval;
-            CCPR1L= 0x64;
-            
-            //return;
-
-        }
-        else if(CCP1IF &&(!mode)){
-           
-           //square
+        else if(CCP1IF){
+            //PWM
             //T2CON = 0b00000110;// Timer 2 PS1/64 setting
             //PR2 = PR_val[freq_index]; //load freq
             // Update Duty Cycle
             CCP1IF = 0; //clear flag
             TMR2IF = 0;
-            index = (index + 1) % 31;
+            index = (index + 1) % 32;
             if((index == 0) || (index == 15)){
                 CWG1CON0bits.EN = 0;
                 CWG1CON1bits.POLB= 0;
@@ -261,8 +220,6 @@ void __interrupt() ISR(void) {
                 CCPR1H = 0x00;
                 CCPR1L= 64;
             }
-
-            
         }
     
 }
@@ -274,14 +231,10 @@ int main(int argc, char** argv) {
     WDTCON = 0b100011;
     init_ccp_cwg();
     usart_init();
-
-
-    // Enable Timer2 Interrupts
    
     // Infinite loop
     while(1) {
         CLRWDT();
-       
     }
     
 }
