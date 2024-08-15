@@ -187,6 +187,11 @@ void __interrupt() ISR(void) {
                     T2CON = 0b00000110;
                     freq_index = (buffer & 0b111);
                     duty_index = (buffer & 0b1111000) >> 3;
+                    if(duty_index == 0){
+                        CWG1CON0bits.EN = 0;
+                        CWG1CON1bits.POLB = 1;
+                        CWG1CON0bits.EN = 1;
+                    }
                     PR2 = PR_val[freq_index]; //load freq
                     state = 0;//state flipped to 0 again
                     return;
@@ -200,25 +205,27 @@ void __interrupt() ISR(void) {
             // Update Duty Cycle
             CCP1IF = 0; //clear flag
             TMR2IF = 0;
-            index = (index + 1) % 32;
-            if((index == 0) || (index == 15)){
-                CWG1CON0bits.EN = 0;
-                CWG1CON1bits.POLB= 0;
-                CWG1CON0bits.EN = 1;
-            }
-            else if(index == duty_index || index == (duty_index + 15) || duty_index == 0){
-                CWG1CON0bits.EN = 0;
-                CWG1CON1bits.POLB = 1;
-                CWG1CON0bits.EN = 1;
-            }
-            if(index < duty_index)
-            {
-                CCPR1H = (PR_val[freq_index]);
-                CCPR1L= 0x00;
-            }
-            else{
-                CCPR1H = 0x00;
-                CCPR1L= 64;
+            index = (index + 1) % 31;
+            if(duty_index != 0){
+                if((index == 0) || (index == 16)){
+                    CWG1CON0bits.EN = 0;
+                    CWG1CON1bits.POLB= 0;
+                    CWG1CON0bits.EN = 1;
+                }
+                else if(index == duty_index || index == (duty_index + 16)){
+                    CWG1CON0bits.EN = 0;
+                    CWG1CON1bits.POLB = 1;
+                    CWG1CON0bits.EN = 1;
+                }
+                if(index < duty_index)
+                {
+                    CCPR1H = (PR_val[freq_index]);
+                    CCPR1L= 0x00;
+                }
+                else{
+                    CCPR1H = 0x00;
+                    CCPR1L= 64;
+                }
             }
         }
     
