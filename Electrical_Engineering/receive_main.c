@@ -76,7 +76,8 @@ uint8_t sine_table[] = {
 37,42,47,52,57,62,67,73,
 79,85,90,97,103,109,115,121};
 
-uint16_t PR_val[] = {173, 111, 92, 64}; // for 90, 140, 180 240hz
+uint8_t PR_val[] = {127, 107, 91, 80, 66, 56, 48, 40}; // for {123, 145, 170, 200, 235, 275, 322, 384} Hz.
+
 // Index into sine table
 uint8_t index = 0;
 uint16_t loadval;
@@ -174,7 +175,7 @@ void __interrupt() ISR(void) {
             RCIF = 0; // Clear The Flag
             uint8_t parity = RX9D; //read the 9th parity
             buffer = RC1REG; // Read The Received Data Buffer
-            if(getParity(buffer) != parity) return; //drop packet
+            if(getParity(buffer) != parity) return; //drop packet 
             
             if((buffer >> 7) != 0b1){ //addr byte recved
                 uint8_t addr = (buffer >> 1); //get addr
@@ -182,10 +183,10 @@ void __interrupt() ISR(void) {
                 if(addr != 0){ //not the current address
                     --addr; //decrease addr
                     UART_Write(make_addr_byte(start, addr)); //send
-                 return;   
+                    return;
                 }
                 else{ //the current addr
-                    LATA4 = start; //LED on/off
+                    LATA4 = start & 0b1; //LED on/off
                     state = start; 
                     if(start == 0){
                         TMR2ON = 0;//ccp enable 
@@ -193,13 +194,13 @@ void __interrupt() ISR(void) {
                         TRISA1 = 1;
                     }
                     return;
-                    }
+                }
             
             }
             else { //data byte received
                 if(state == 0){ //previous data byte not address to this board
                       while(!TRMT){};
-                      TX9D = parity;
+                      TX9D = parity & 0b1;
                       TX1REG = buffer;//transmit directly
                       return;
                 }
@@ -207,13 +208,8 @@ void __interrupt() ISR(void) {
                     TRISA1 = 0;
                     TRISA0 = 0;
                     TMR2ON = 1;
-                    mode = (buffer & 0b1);
-                    if (mode){
-                        T2CON = 0b00000101;
-                    }
-                    else
-                        T2CON = 0b00000110;
-                    freq_index = (buffer & 0b110) >> 1;
+                    T2CON = 0b00000110;
+                    freq_index = (buffer & 0b111);
                     duty_index = (buffer & 0b1111000) >> 3;
                     PR2 = PR_val[freq_index]; //load freq
                     state = 0;//state flipped to 0 again
@@ -235,7 +231,7 @@ void __interrupt() ISR(void) {
             CCPR1L= 0x64;
             
             //return;
-        
+
         }
         else if(CCP1IF &&(!mode)){
            
