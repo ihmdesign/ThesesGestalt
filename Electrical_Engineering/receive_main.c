@@ -53,7 +53,7 @@ uint8_t buffer = 0;//uart recv buffer
 uint8_t duty_index = 7; // 0-15 maps to PWM duty cycle 0-100%;
 uint8_t freq_index = 3; // 0-7 maps to frequency {123, 145, 170, 200, 235, 275, 322, 384} Hz;
 
-uint8_t PR_val[] = {127, 107, 91, 80, 66, 56, 48, 40}; // PR2 values for frequencies;
+uint8_t PR_val[] = {127, 107, 91, 78, 66, 56, 48, 40}; // PR2 values for frequencies;
 
 // Index into sine table
 uint8_t index = 0;
@@ -205,7 +205,7 @@ void __interrupt() ISR(void) {
             // Update Duty Cycle
             CCP1IF = 0; //clear flag
             TMR2IF = 0;
-            index = (index + 1) % 31;
+            index = (index + 1) % 32;
             if(duty_index != 0){
                 if((index == 0) || (index == 16)){
                     CWG1CON0bits.EN = 0;
