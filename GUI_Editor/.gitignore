@@ -1,0 +1,3 @@
+main app/__pycache__/
+*.dsgn
+*.pyc
