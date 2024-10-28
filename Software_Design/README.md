@@ -53,4 +53,4 @@ We also provide a Unity Engine API so that designers can directly make function 
 1. Import `VibraForge_Plugin.unitypackage` as a custom package into an existing project.
 2. Use the `VibraForgeSender` prefab to create a new gameobject, and configure the server IP address and port if needed. 
 3. When Unity Engine events are triggered (e.g., OnTriggerEnter, OnTriggerExit, etc), call `VibraForge.SendCommand(addr, mode, duty, freq)` to send vibration commands.
-4. Note: the Python_Unity_Server.py program is used to receive vibration commands through socket communication with Unity Engine APIs. it should be run before running the Unity program.
+4. Note: the `Python_Unity_Server.py` program is used to receive vibration commands through socket communication with Unity Engine APIs. it should be run before running the Unity program.
