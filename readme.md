@@ -7,6 +7,8 @@ This repository shares the open-source design files of the VibraForge toolkit, i
 - Mechanical Design
 - Software Design
 
+If you are interested in using the toolkit and would like to get a development kit from us, please fill out [this Google Form](https://forms.gle/6aN7M9MWAf4sLqWE6)
+
 ## Quickstart Guidelines
 
 If you already have the hardware dev kit shipped by the authors, you can skip the the first two steps. Otherwise you can follow these two steps to craft the hardware needed.
