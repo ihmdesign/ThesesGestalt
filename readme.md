@@ -11,7 +11,9 @@ If you are interested in using the toolkit and would like to get a development k
 
 ## Quickstart Guidelines
 
-If you already have the hardware dev kit shipped by the authors, you can skip the the first two steps. Otherwise you can follow these two steps to craft the hardware needed.
+If you already have the hardware dev kit shipped by the authors, it should contain a [quickstart guide](quickstart_guide.pdf) that you can easily follow.
+
+Otherwise, you can follow step 1 & 2 to make the hardware yourself.
 
 1. The `Electrical Design` folder has detailed descriptions of how to use the PCB design files to print the boards, and to program the boards with Arduino / MPLab X IDE.
 
