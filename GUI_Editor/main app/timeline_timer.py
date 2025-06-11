@@ -10,7 +10,7 @@ class TimelineTimer(QObject):
         super().__init__()
         self.playing = False  # Indicates whether the timer is playing or paused
         self.current_time = 0.0  # Keeps track of the timeline's current time
-        self.update_interval = 5  # 5 ms interval in milliseconds
+        self.update_interval = 20  # 20 ms interval in milliseconds
         self.last_lapse = -1
         self.update_count = 0
 

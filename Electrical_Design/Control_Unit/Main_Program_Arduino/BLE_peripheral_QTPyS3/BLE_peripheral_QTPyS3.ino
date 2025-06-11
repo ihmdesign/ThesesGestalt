@@ -55,13 +55,13 @@ class MyCharacteristicCallbacks: public BLECharacteristicCallbacks {
               // Print received values for debugging
               // Uncomment the following lines if you want to output the values for debugging purposes
               
-//              Serial.print("Received: ");
-//              Serial.print("SG: "); Serial.print(serial_group_number);
-//              Serial.print(", Mode: "); Serial.print(is_start);
-//              Serial.print(", Addr: "); Serial.print(addr);
-//              Serial.print(", Duty: "); Serial.print(duty);
-//              Serial.print(", Freq: "); Serial.print(freq);
-//              Serial.print(", Wave: "); Serial.println(wave);
+              Serial.print("Received: ");
+              Serial.print("SG: "); Serial.print(serial_group_number);
+              Serial.print(", Mode: "); Serial.print(is_start);
+              Serial.print(", Addr: "); Serial.print(addr);
+              Serial.print(", Duty: "); Serial.print(duty);
+              Serial.print(", Freq: "); Serial.print(freq);
+              Serial.print(", Wave: "); Serial.println(wave);
               
               
               sendCommand(serial_group_number, addr, is_start, duty, freq, wave);
